@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	 <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="121cd38b-342f-4d22-bd0e-918293029c29" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="muledemoclassFlow" doc:id="fb3db025-6d89-464b-88f8-3c03b7edc45b" >
+		<http:listener doc:name="Listener" doc:id="089c75de-8e85-4a05-84c2-1154668c309f" config-ref="HTTP_Listener_config" path="/createPdf"/>
+		<ee:transform doc:name="Transform Message" doc:id="1f1ca9a9-fa81-4404-993a-44cb97e0dc2e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+"Date: " ++ now() as String ++ "\n" ++"\n" ++"\n" ++ "Hello " ++ payload.CreatingPdf.name ++  " , " ++"You are a " ++ payload.CreatingPdf.role ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<java:invoke-static method="createPdf(java.lang.String)" doc:name="Invoke static" doc:id="e71177a6-e217-4d5d-a783-27aa39b0eb39" class="muledemoclass.FirstPdf">
+			<java:args ><![CDATA[#[{
+args : payload as String	
+}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Transform Message" doc:id="9f1c44fe-4dad-4d79-bd9a-b181135c1170" >
+			<ee:message >
+				<ee:set-payload ><![CDATA["PDF Created Successfully"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
